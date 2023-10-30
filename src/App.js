@@ -1,16 +1,29 @@
-// App.js
-import React from "react";
-import AppRoutes from "./Router";
-import './App.css';
+// import { useRoutes } from "react-router-dom";
+import Routes from "./Router";
+import './App.css'
+import { useEffect } from "react";
+import { useDispatch, connect} from "react-redux";
 
-function App() {
+
+function App({navBarSelection}) {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+if(navBarSelection === 'logout') {
+  
+}
+  },[])
   return (
     <>
       <main>
-        <AppRoutes />
+        <Routes />
       </main>
     </>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  navBarSelection: state.navBarSelection,
+});
+
+export default connect(mapStateToProps)(App);

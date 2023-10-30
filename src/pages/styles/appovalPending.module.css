@@ -1,0 +1,28 @@
+/* RegistrationSuccessMessage.css */
+
+.registrationSuccess {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .registrationSuccess h2 {
+    color: #333;
+  }
+  
+  .registrationSuccess p {
+    margin: 10px 0;
+  }
+  
+  .registrationSuccess a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .registrationSuccess a:hover {
+    text-decoration: underline;
+  }
+  

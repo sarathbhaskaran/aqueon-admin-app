@@ -1,38 +1,255 @@
-.App {
-  text-align: center;
+body {
+  font-size: 14px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.nav-bar{
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 2rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.logo-image{
+  height: 100px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.signup-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.signup-type-box {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 7px;
+  border-color: #dee2e6;
+}
+
+.modal{
+  display: flex;
+  align-items: center;
+}
+main {
+  padding-left: 0 20px;
+}
+
+.dropdownMenu-wrapper{
+  overflow-y: scroll ;
+  max-height: 70vh;
+  
+}
+
+.main-container{
+  display: flex;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.tab-content>.tab-pane {
+  width: 100%;
+}
+
+.tab-pane-container{
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 7px;
+}
+
+.tab-pane-container-wrapper{
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  background-color: rgb(248, 248, 248);
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  padding: 15px;
+}
+
+.tabpane-one, .tabpane-three{
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 30px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  width: 100%;
+  margin-top: 5%;
+
 }
 
-.App-link {
-  color: #61dafb;
+.billing-address, .bank-details{
+  background-color: aqua;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 5%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.tabpane-four{
+  width: 100%
+}
+
+.tab-content{
+  display: flex;
+  padding: 20px;
+  margin-bottom: 3rem;
+  max-height: 65vh; /* Set a maximum height for the scrollable content */
+  width: 100%;
+}
+
+.nav-link{
+  padding: 0 40px;
+}
+
+.tabpane-one > .row, .tabpane-three > .row, .tabpane-four > .row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5%;
+}
+
+.billing-address > .row {
+  width: 50%
+}
+
+.side-bar{
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+}
+
+.nav-link{
+  font-size: 20px;
+}
+
+.info-submit{
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.info-submit > button {
+  max-width:100px;
+  align-self: flex-end;
+}
+
+.tabpane-one > .row {
+  justify-content: flex-end !important;
+}
+
+.req-service-container{
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+p{
+  margin: 6px;
+}
+
+h5{
+  margin-bottom: 0;
+}
+.log-in-wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: calc(100vh - 70px);
+  border-radius: 10px;
+}
+
+.login-head{
+  /* padding-right: 40px; */
+  margin-bottom: 5px;
+}
+
+.login-form{
+  width: 28%;
+} 
+
+.login-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+}
+
+.login-email , .login-pasword{
+  margin-bottom:  4%;
+}
+
+label {
+  margin-bottom: 10px;
+}
+
+.tabpane-four > h2 {
+  font-size: 30px;
+  margin-top: 50px;
+}
+
+.tabpane-one, .tabpane-three{
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 5%;
+
+}
+
+.tabpane-one > .row, .tabpane-three > .row, .tabpane-four > .row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5%;
+}
+
+.nav-tabs .nav-link {
+  border-radius: 0; 
+}
+
+.all-tabpane-container {
+  height: 55vh; 
+  /* max-height: 55vh;  */
+  overflow: auto;
+}
+
+.summary-container{
+  height: 90vh;
+  flex-grow: 1;
+}
+.certification-summary{
+  display: flex;
+  flex-direction: row;
+}
+.summary-division-one{
+  /* background-color: rgb(250, 250, 250); */
+  padding: 20px;
+  border-bottom: 2px solid #4ab9cf;
+}
+
+.certificate-wraper{
+  background-color: rgb(178, 178, 178);
+  color: rgb(246, 246, 246);
+}
+
+.summary-division-two{
+  background-color: rgb(254, 254, 254);
+  padding: 20px;
+  border-bottom: 2px solid #4ab9cf;
+ 
+
+}
+
+.summary-services{
+  display: flex;
+  flex-wrap: wrap;
 }

@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.country-dropdown{
+  position: relative;
+}
+
+.dropdown-content{
+  position: absolute;
+  background-color: rgb(250, 250, 250);
+  width: 100%;
+  margin-top: 2%;
+  border-radius: 5px;
+}
+
+ul{
+  list-style: none;
+}
+
+.country-name{
+  display: flex;
+  gap: 6px;
+}
+
+.dropdown-list{
+  overflow-y: auto;
+  max-height: 80vh;
+}

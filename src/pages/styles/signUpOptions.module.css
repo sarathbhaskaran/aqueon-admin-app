@@ -1,0 +1,53 @@
+.container{
+    height: calc(100vh - 100px);
+    padding-left: 5%;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    gap: 10%;
+    padding-bottom: 8%;
+    /* background-color: #4ab9cf; */
+}
+
+.questionContainer > h1{
+    font-weight: bold;
+    font-size: 100px;
+    margin: 0;
+    line-height: 120px;
+    color: rgb(81, 79, 79);
+
+}
+
+.registerDiv{
+   display: flex; 
+   flex-direction: column;
+   gap: 20px;
+   
+}
+
+.registerAsDiv{
+    height: 100px;
+    background-color: rgb(243, 243, 243);
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgb(81, 79, 79)
+}
+
+.registerDiv :hover {
+    background-color: #4ab9cf;
+    color: white;
+    font-size: larger;
+    cursor: pointer;
+}
+
+.registerAsDiv>p :hover{
+color: white;
+}
+
+.registerAsDiv > p {
+    font-weight: bold;
+    font-size: larger;
+}
