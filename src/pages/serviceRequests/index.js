@@ -294,7 +294,7 @@ const ServiceRequests = () => {
                     const d = new Date(row.create_time);
                     let text = d.toLocaleString();
                     return (
-                      <TableRow onClick={() => toggle(row.id)} hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableRow onClick={() => toggle(row.id)} hover role="checkbox" tabIndex={-1} key={row.id} style={{ cursor: "pointer" }}>
                         <TableCell>
                           {row.company_name}
                         </TableCell>
