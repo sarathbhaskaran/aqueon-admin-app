@@ -48,7 +48,7 @@ const ApproveVendorRequests = () => {
     if (addedCost === 0) {
       return alert('Please added cost')
     }
-    await axios.put('/approve-vendor-quote', { id, addedCost })
+    await axios.put('/approve-vendor-quote', { id, addedCost, requestId })
       .then(res => {
         console.log("res", res.data)
         setAddedCost(0)
