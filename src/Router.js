@@ -4,7 +4,7 @@ import ApprovalPending from "./pages/approval-pending";
 import Dashboard from "./pages/dashboard";
 import VendorApprovalPending from "./pages/vendor-approval-pending";
 import AdminLogin from "./pages/admin-login";
-import VendorLogIn from "./pages/vendor-login";
+// import AdminLogIn from "./pages/vendor-login";
 
 const isAuthenticated = () => { 
   const authObj = JSON.parse(localStorage.getItem('authInfo'))
@@ -25,7 +25,7 @@ export default function Routes() {
     <BaseRoutes>
       {/* <Route path="/app" element={<Dashboard />} /> */}
       {/* <Route path="/admin" element={<Signup />} /> */}
-      <Route path="/admin" element={<VendorLogIn />} />      
+      <Route path="/admin/login" element={<AdminLogin />} />      
       <Route path="/admin/dashboard" element={<PrivateRoute element={<Dashboard />}/>} />
       <Route path="/app/vendor-approval-pending" element={<PrivateRoute element={<VendorApprovalPending/> }/>} />
       <Route path="/app/approval-pending" element={ <ApprovalPending />} />

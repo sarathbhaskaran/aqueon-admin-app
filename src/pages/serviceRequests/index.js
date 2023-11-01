@@ -14,7 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useState, useEffect } from "react";
 import {
-  ListGroupItem, ListGroup, Spinner
+  ListGroupItem, ListGroup, Spinner, Badge, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col
 } from "reactstrap";
 import { config } from "../../config";
 import { Button } from "@mui/material";
@@ -25,6 +25,10 @@ const ServiceRequests = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [selectedRequestId, setSelectedRequestId] = React.useState(0);
+  const [showFullDetails, setShowFullDetails] = useState(false);
+  const [shipDetails, setShipDetails] = useState([]);
+  const [requestVendors, setRequestesVendors] = useState([]);
   const [openServiceLocation, setOpenServiceLocation] = React.useState(false);
   const [serviceLocations, setServiceLocations] = React.useState([]);
 
@@ -46,10 +50,24 @@ const ServiceRequests = () => {
     setPage(0);
   };
 
+  const toggle = (id) => {
+    setSelectedRequestId(id)
+    axios.get(`/admin/service-requests-extra-details`, { params: { requestId: id } })
+      .then((res) => {
+        setShowFullDetails(!showFullDetails)
+        setShipDetails(res.data.shipDetails)
+        setRequestesVendors(res.data.requestedVendors)
+      })
+      .catch(err => {
+        alert("Error");
+        console.log("Error")
+      })
+
+  };
+
   useEffect(() => {
     axios.get(`${config.api_base_url}/admin/service-requests`)
       .then((res) => {
-        console.log("resefews", res);
         setIsLoading(false);
         setVendorList(res.data.message);
       })
@@ -59,56 +77,160 @@ const ServiceRequests = () => {
       })
   }, []);
 
-  // const showServiceLocation = (id) => {
-  //   handleClickOpenServiceLocation()
-  //   axios.get(`${config.api_base_url}/vendor/service-location`, { params: { vendorId: id } })
-  //     .then(res => {
-  //       setServiceLocations(res.data.message)
-  //       console.log("res", res);
-  //     })
-  // }
-  // const handleChangePassword = async () => {
-  //   if (password.length < 8) {
-  //     alert("Password must be more than 8 characters")
-  //     return;
-  //   }
 
-  //   if (password !== confirmPassword) {
-  //     setCheckSame(false);
-  //     return;
-  //   }
+  const renderModal = () => {
+    const selectRequest = vendorList.find(each => each.id == selectedRequestId);
+    return (
+      <Modal isOpen={showFullDetails} size='lg' toggle={() => setShowFullDetails(!showFullDetails)}>
+        <ModalHeader toggle={() => setShowFullDetails(!showFullDetails)}>Request Details</ModalHeader>
+        <ModalBody>
+          <Row>
+            <h5>Ship Details</h5>
+          </Row>
+          <div>
+            <Row>
+              <Col sm='6'>
+                <p>Ship Name: <strong>{shipDetails.shipName}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>IMO number: <strong>{shipDetails.imoNumber}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>In charge Name: <strong>{shipDetails.inChargeName}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>Ship Classfication: <strong>{shipDetails.shipClassfication}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>Ship Flag: <strong>{shipDetails.shipFlag}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>Year of Build: <strong>{shipDetails.yearOfBuild}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>Ship Length: <strong>{shipDetails.shipLength}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>Ship Breadth: <strong>{shipDetails.shipBreadth}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>Ship DeadWeight: <strong>{shipDetails.deadWeight}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>Ship Type: <strong>{shipDetails.shipType}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>No Of Ballast Tank: <strong>{shipDetails.noOfBallastTank}</strong> </p>
+              </Col>
+              <Col sm='6'>
+                <p>No Of Cargo: <strong>{shipDetails.noOfCargo}</strong> </p>
+              </Col>
+            </Row>
+          </div>
+          <Row style={{ marginTop: "2rem" }}>
+            <h5>Service Details</h5>
+          </Row>
+          <div>
+            <Row>
+              <Col>
+                <p>Service Name: <strong>{selectRequest.serviceName ? selectRequest.serviceName : selectRequest.newServiceName + '(new)'}</strong> </p>
+              </Col>
 
-  //   await axios.post(`${config.api_base_url}/vendors/changepassword`, { password })
-  //     .then(() => {
-  //       setPasswordAlert(true)
-  //       setTimeout(() => {
-  //         setPasswordAlert(false);
-  //       }, 5000);
-  //       setCheckSame(true);
-  //     })
-  //     .catch(err => {
-  //       setCheckSame(true);
-  //       alert("Error");
-  //       console.log("Error updating password")
-  //     })
-  // }
+              <Col sm='10px'>
+                <p>Country: <strong>{selectRequest.country}</strong> </p>
+              </Col>
+
+              <Col>
+                <p>Port: <strong>{selectRequest.port}</strong> </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm='6'>
+                <p>Service Request Details: <strong>{shipDetails.serviceRequestDetails}</strong> </p>
+              </Col>
+            </Row>
+          </div>
+          <Row style={{ marginTop: "2rem" }}>
+            <h5>Requested Vendors</h5>
+          </Row>
+          {
+            
+            <div>
+              <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Company Name</strong></TableCell>
+                  <TableCell><strong>Company Email</strong></TableCell>
+                  <TableCell> <strong>Status</strong></TableCell>
+                </TableRow>
+              </TableHead>
+            {requestVendors.length > 0 ? requestVendors.map(each => {
+              return(
+                <TableRow onClick={() => toggle(each.id)} hover role="checkbox" tabIndex={-1} key={each.id}>
+                <TableCell>
+                  {each.company_name}
+                </TableCell>
+                <TableCell>{each.company_email}</TableCell>
+                <TableCell>{
+                  each.status === 'pending' ?
+                    <Badge color="warning">
+                      Pending
+                    </Badge> :
+                    each.status === 'accepted' ?
+                      <Badge color="success">
+                        Accepted
+                      </Badge> :
+                      <Badge color="primary">
+                        Closed
+                      </Badge>
+                }</TableCell>
+              </TableRow>
+              )
+            }) : 
+            <div style={{ color: 'red'}}>No service supplier found.</div>
+          }
+              </Table>
+          </div>
+          
+          }
+         
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={() => setShowFullDetails(!showFullDetails)}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
   if (isLoading) {
     return (
-        <div className="tab-pane-container-wrapper" style={{  }}>
-          <div className="tab-pane-container" style={{ height: "55vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <Spinner
-                color="primary"
-                style={{
-                    height: '3rem',
-                    width: '3rem'
-                }}
-            >
-                Loading...
-            </Spinner>
-          </div>
+      <div className="tab-pane-container-wrapper" style={{}}>
+        <div className="tab-pane-container" style={{ height: "55vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Spinner
+            color="primary"
+            style={{
+              height: '3rem',
+              width: '3rem'
+            }}
+          >
+            Loading...
+          </Spinner>
         </div>
+      </div>
     )
-}
+  }
 
   return (
     <div className="tab-pane-container-wrapper">
@@ -124,24 +246,24 @@ const ServiceRequests = () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              { Array.isArray(serviceLocations) ? 
-              <ListGroup>
-              {serviceLocations.map(location => {
-                return (
-                    <ListGroupItem style={{dispaly: "flex", justifyContent: 'space-between' }}>
-                      <div>
-                        <strong>Country</strong>: {location.country}
-                      </div>
-                      <div>
-                      <strong>Port</strong>: {location.port}
-                      </div>
-                    </ListGroupItem>
-                )
-              })}
-              </ListGroup>
-              : <div>
-                {serviceLocations}
-              </div>
+              {Array.isArray(serviceLocations) ?
+                <ListGroup>
+                  {serviceLocations.map(location => {
+                    return (
+                      <ListGroupItem style={{ dispaly: "flex", justifyContent: 'space-between' }}>
+                        <div>
+                          <strong>Country</strong>: {location.country}
+                        </div>
+                        <div>
+                          <strong>Port</strong>: {location.port}
+                        </div>
+                      </ListGroupItem>
+                    )
+                  })}
+                </ListGroup>
+                : <div>
+                  {serviceLocations}
+                </div>
               }
             </DialogContentText>
           </DialogContent>
@@ -151,39 +273,53 @@ const ServiceRequests = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        {showFullDetails && renderModal()}
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 440 }}>
+          <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ minWidth: '200px' }}><strong>Company Name</strong></TableCell>
-                  {/* <TableCell> <strong>Company Email</strong> </TableCell> */}
-                  <TableCell> <strong>Service Name</strong> </TableCell>
-                  
-                  <TableCell> <strong>Contact Number</strong></TableCell>
+                  <TableCell><strong>Company Name</strong></TableCell>
+                  <TableCell><strong>Company Email</strong></TableCell>
+                  <TableCell><strong>Serivce</strong></TableCell>
                   <TableCell> <strong>Country</strong></TableCell>
-                  <TableCell> <strong>Ship length</strong></TableCell>
-                  <TableCell> <strong>Ship Width</strong></TableCell>
+                  <TableCell> <strong>Requested On</strong></TableCell>
                   <TableCell> <strong>Status</strong></TableCell>
+                  {/* <TableCell> <strong>Action</strong></TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {vendorList
                   .map((row) => {
-                    const d = new Date(row.creation_time);
+                    const d = new Date(row.create_time);
                     let text = d.toLocaleString();
                     return (
-                      <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableRow onClick={() => toggle(row.id)} hover role="checkbox" tabIndex={-1} key={row.id} style={{ cursor: "pointer" }}>
                         <TableCell>
                           {row.company_name}
                         </TableCell>
-                        {/* <TableCell >{row.company_email}</TableCell> */}
-                        <TableCell >{row.serviceName}</TableCell>
-                        <TableCell>{row.contact_number}</TableCell>
+                        <TableCell>{row.company_email}</TableCell>
+                        <TableCell >{row.serviceName ? row.serviceName : <div style={{ display: 'flex'}}>{row.newServiceName }<div style={{ color: 'orange'}} >(new)</div> </div> }</TableCell>
                         <TableCell>{row.country}</TableCell>
-                        <TableCell>{JSON.parse(row.ship_details).length}</TableCell>
-                        <TableCell>{JSON.parse(row.ship_details).width}</TableCell>
-                        <TableCell>{row.status}</TableCell>
+                        <TableCell>{text}</TableCell>
+                        <TableCell>{
+                          row.status === 'pending' ?
+                            <Badge color="warning">
+                              Pending
+                            </Badge> :
+                            row.status === 'notRequested' ?
+                              <Badge color="danger">
+                                Not Requested
+                              </Badge> :
+                              <Badge color="primary">
+                                Closed
+                              </Badge>
+                        }</TableCell>
+                        {/* <TableCell>
+                          <Button>
+                            View More
+                          </Button>
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}
