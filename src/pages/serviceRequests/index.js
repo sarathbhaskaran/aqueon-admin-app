@@ -49,12 +49,12 @@ const ServiceRequests = () => {
   useEffect(() => {
     axios.get(`${config.api_base_url}/admin/service-requests`)
       .then((res) => {
-        // console.log("res", res.);
+        console.log("resefews", res);
         setIsLoading(false);
         setVendorList(res.data.message);
       })
       .catch(err => {
-        alert("Error");
+        alert("Errorsvs");
         console.log("Error")
       })
   }, []);
