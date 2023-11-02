@@ -5,6 +5,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
+import { useDispatch } from "react-redux";
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Dialog from '@mui/material/Dialog';
@@ -20,6 +21,7 @@ import { config } from "../../config";
 import { Button } from "@mui/material";
 
 const ServiceRequests = () => {
+  const dispatch = useDispatch()
 
   const [vendorList, setVendorList] = useState([]);
   const [page, setPage] = React.useState(0);
@@ -50,6 +52,11 @@ const ServiceRequests = () => {
     setPage(0);
   };
 
+  const navigateToRequestVendors = () => {
+    dispatch({ type: 'SET_SERVICE_REQUEST_ID', payload: selectedRequestId })
+    dispatch({ type: 'APPROVE_VENDOR_REQUESTS' })
+  } 
+
   const toggle = (id) => {
     setSelectedRequestId(id)
     axios.get(`/admin/service-requests-extra-details`, { params: { requestId: id } })
@@ -62,7 +69,6 @@ const ServiceRequests = () => {
         alert("Error");
         console.log("Error")
       })
-
   };
 
   useEffect(() => {
@@ -160,8 +166,15 @@ const ServiceRequests = () => {
               </Col>
             </Row>
           </div>
-          <Row style={{ marginTop: "2rem" }}>
-            <h5>Requested Vendors</h5>
+          <Row style={{ marginTop: "2rem", display: 'flex', justifyContent: 'space-between' }}>
+            <Col sm="6">
+              <h5>Requested Vendors</h5>
+            </Col>
+            <Col sm="6" >
+              <Button onClick={() => navigateToRequestVendors() } color="success" variant="outlined">
+                View Details
+              </Button>
+            </Col>
           </Row>
           {
             
@@ -176,7 +189,7 @@ const ServiceRequests = () => {
               </TableHead>
             {requestVendors.length > 0 ? requestVendors.map(each => {
               return(
-                <TableRow onClick={() => toggle(each.id)} hover role="checkbox" tabIndex={-1} key={each.id}>
+                <TableRow hover role="checkbox" tabIndex={-1} key={each.id}>
                 <TableCell>
                   {each.company_name}
                 </TableCell>
@@ -279,6 +292,7 @@ const ServiceRequests = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
+                  <TableCell><strong>Request Id</strong></TableCell>
                   <TableCell><strong>Company Name</strong></TableCell>
                   <TableCell><strong>Company Email</strong></TableCell>
                   <TableCell><strong>Serivce</strong></TableCell>
@@ -295,6 +309,7 @@ const ServiceRequests = () => {
                     let text = d.toLocaleString();
                     return (
                       <TableRow onClick={() => toggle(row.id)} hover role="checkbox" tabIndex={-1} key={row.id} style={{ cursor: "pointer" }}>
+                         <TableCell>{row.id}</TableCell>
                         <TableCell>
                           {row.company_name}
                         </TableCell>

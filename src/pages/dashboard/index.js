@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, connect } from "react-redux";
 import axios from 'axios';
-
 import Navbar from '../../components/Navbar'
 import SideNavbar from '../../components/Sidebar';
 import VendorDetails from '../vendorDetails';
