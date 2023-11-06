@@ -207,11 +207,11 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
               style={{ color: 'grey' }}
               onClick={() => handleCloseServiceLocation()}
             >
-              Cancel
+              OKay
             </Button>
-            <Button onClick={() => approveQuotation(vendorDetails.id, vendorDetails.requestId)} autoFocus>
+            {/* <Button onClick={() => approveQuotation(vendorDetails.id, vendorDetails.requestId)} autoFocus>
               Approve
-            </Button>
+            </Button> */}
           </DialogActions>
         </Dialog>
 
