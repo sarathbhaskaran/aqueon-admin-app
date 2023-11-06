@@ -199,12 +199,12 @@ const ServiceRequests = () => {
                     <Badge color="warning">
                       Pending
                     </Badge> :
-                    each.status === 'accepted' ?
+                    each.status === 'Accepted' ?
                       <Badge color="success">
-                        Accepted
+                        Offer Submitted
                       </Badge> :
                       <Badge color="primary">
-                        Closed
+                        Offer Submitted
                       </Badge>
                 }</TableCell>
               </TableRow>

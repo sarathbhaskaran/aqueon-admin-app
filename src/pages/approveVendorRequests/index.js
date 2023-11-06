@@ -104,7 +104,8 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
     await axios.get(`${config.api_base_url}/vendors-accepted`, { params: { serviceRequestId } })
       .then((res) => {
         console.log("res", res);
-        setVendorList(res.data.message);
+        setVendorList(res.data.message.vendorsAccepted);
+        setAddedCost(res.data.message.addedCost.addedCost ? res.data.message.addedCost.addedCost : 0)
       })
       .catch(err => {
         alert("Error");
@@ -176,7 +177,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: '1rem' }}>
                 <h6 style={{ color: 'black' }}>Total Cost: </h6>
-                <strong style={{ fontSize: "20px" }} >{vendorDetails.totalCost ? currencyLogo + vendorDetails.totalCost : currencyLogo + '0'}</strong>
+                <strong style={{ fontSize: "20px" }} >{currencyLogo}{parseInt(vendorDetails.serviceCost)+ parseInt(vendorDetails.mobilizationCost) + parseInt(vendorDetails.extraCharges)}</strong>
               </div>
               <Row style={{ marginTop: '2rem' }}>
                 <Col sm='12'>
@@ -244,7 +245,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
           <DialogActions>
             <Button
               style={{ color: 'grey' }}
-              onClick={() => handleCloseServiceLocation()}
+              onClick={() => handleAddCostPopUpClose()}
             >
               Cancel
             </Button>
@@ -257,6 +258,9 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <h6>
             Request Id: {serviceRequestId}
+          </h6>
+          <h6>
+            Added Cost: <strong style={{ fontSize: '25px' }} >₹{addedCost}</strong> 
           </h6>
           <Button variant="contained" onClick={() => setAddCostPopup(true)} >
             + Add Cost
@@ -292,10 +296,10 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
                         <TableCell >{
                           row.status === "pending" ?
                             <Badge color="danger" >
-                              Supplier Not Accept
+                              Offer Not Submited
                             </Badge> :
                             <Badge color="success">
-                              Supplier Accepted
+                              Offer Submitted
                             </Badge>
                           // <Badge color="error" badgeContent={"Not accepted"}/> : null
                         }</TableCell>
@@ -307,6 +311,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
                         <TableCell>
                           <Button
                             variant="outlined"
+                            disabled={row.status === 'pending'}
                             onClick={() => showServiceLocation(row)}
                           >
                             View Offer
