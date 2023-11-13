@@ -14,18 +14,22 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useState, useEffect } from "react";
 import {
-  ListGroupItem, ListGroup
+  ListGroupItem, ListGroup, Row, Col
 } from "reactstrap";
 import { config } from "../../config";
 import { Button } from "@mui/material";
+import { unstable_batchedUpdates } from "react-dom";
+import VendorDetailsModal from '../../components/VendorDetailsModal'
 
 const VendorDetails = () => {
 
   const [vendorList, setVendorList] = useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [openServiceLocation, setOpenServiceLocation] = React.useState(false);
-  const [serviceLocations, setServiceLocations] = React.useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openServiceLocation, setOpenServiceLocation] = useState(false);
+  const [serviceLocations, setServiceLocations] = useState([]);
+  const [detailsModalData, setDetailsModalData] = useState([])
+  const [isOpenDetailsModal, setIsOpenDetailsModal] = useState(false)
 
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
@@ -48,7 +52,7 @@ const VendorDetails = () => {
   useEffect(() => {
     axios.get(`${config.api_base_url}/admin/vendors`)
       .then((res) => {
-        // console.log("res", res.);
+        console.log("res", res.data);
         setVendorList(res.data);
       })
       .catch(err => {
@@ -91,9 +95,129 @@ const VendorDetails = () => {
   //     })
   // }
 
+  const handleClose = () => {
+    unstable_batchedUpdates(() => {
+      setIsOpenDetailsModal(false)
+      setDetailsModalData([])
+    })
+  }
+
+  const openDetailsModal = (data, addedOn) => {
+    const details = {
+      ...data,
+      addedOn
+    }
+    unstable_batchedUpdates(() => {
+      setIsOpenDetailsModal(true)
+      setDetailsModalData(details)
+    })
+  }
+
   return (
     <div className="tab-pane-container-wrapper">
       <div className="tab-pane-container">
+      <Dialog
+          open={isOpenDetailsModal}
+        maxWidth={'lg'}
+        fullWidth={true}
+onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle>
+            Company Details
+          </DialogTitle>
+          {/* <DialogContent >
+            <Row style={{marginBottom: '30px', padding: '2px'}}>
+              <Col >
+                <h5>
+                  Company Name
+                </h5>
+                <p>{detailsModalData.company_name}</p>
+              </Col>
+              <Col>
+                <h5>
+                  Contact Number
+                </h5>
+                <p>{detailsModalData.contact_number}</p>
+              </Col>
+              <Col >
+                <h5>
+                  Country
+                </h5>
+                <p>{detailsModalData.country}</p>
+              </Col>
+            </Row>
+
+            <Row style={{marginBottom: '30px', padding: '2px'}}>
+              <Col>
+                <h5>
+                  Added On
+                </h5>
+                <p>{detailsModalData.addedOn}</p>
+              </Col>
+              <Col>
+                <h5>
+                  Accounting Email
+                </h5>
+                <p>{detailsModalData.company_email}</p>
+
+              </Col>
+
+              <Col>
+                <h5>
+                  Staff Count
+                </h5>
+                <p>{detailsModalData.staff}</p>
+
+              </Col>
+            </Row>
+
+            <Row style={{marginBottom: '30px', padding: '2px'}}>
+              <Col>
+                <h5>
+                  Websites
+                </h5>
+                <p>{detailsModalData.website}</p>
+              </Col>
+
+              <Col>
+                <h5>
+                  Service Location
+                </h5>
+                <Button
+                  variant="outlined"
+                  style={{border: 'none', textDecoration: 'underline', cursor: 'pointer'}}
+                  onClick={() => showServiceLocation(detailsModalData.id)}
+                >
+                  View
+                </Button> 
+                </Col>
+
+              <Col>
+                <h5>
+                  Billing Address
+                </h5>
+                <Button
+                  variant="outlined"
+                  style={{border: 'none', textDecoration: 'underline', cursor: 'pointer'}}
+                  onClick={() => showServiceLocation(detailsModalData.id)}
+                >
+                  View
+                </Button>   
+                </Col>
+            </Row>
+
+          </DialogContent> */}
+          <DialogContent>
+            <VendorDetailsModal vendorId={detailsModalData.id}/>
+          </DialogContent>
+          <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+              Okay
+            </Button>          </DialogActions>
+        </Dialog>
+
         <Dialog
           open={openServiceLocation}
           onClose={handleCloseServiceLocation}
@@ -105,24 +229,24 @@ const VendorDetails = () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              { Array.isArray(serviceLocations) ? 
-              <ListGroup>
-              {serviceLocations.map(location => {
-                return (
-                    <ListGroupItem style={{dispaly: "flex", justifyContent: 'space-between' }}>
-                      <div>
-                        <strong>Country</strong>: {location.country}
-                      </div>
-                      <div>
-                      <strong>Port</strong>: {location.port}
-                      </div>
-                    </ListGroupItem>
-                )
-              })}
-              </ListGroup>
-              : <div>
-                {serviceLocations}
-              </div>
+              {Array.isArray(serviceLocations) ?
+                <ListGroup>
+                  {serviceLocations.map(location => {
+                    return (
+                      <ListGroupItem style={{ dispaly: "flex", justifyContent: 'space-between' }}>
+                        <div>
+                          <strong>Country</strong>: {location.country}
+                        </div>
+                        <div>
+                          <strong>Port</strong>: {location.port}
+                        </div>
+                      </ListGroupItem>
+                    )
+                  })}
+                </ListGroup>
+                : <div>
+                  {serviceLocations}
+                </div>
               }
             </DialogContentText>
           </DialogContent>
@@ -142,11 +266,12 @@ const VendorDetails = () => {
                   <TableCell> <strong>Contact Number</strong></TableCell>
                   <TableCell> <strong>Country</strong></TableCell>
                   <TableCell> <strong>Added On</strong></TableCell>
-                  <TableCell> <strong>Accounting Email</strong> </TableCell>
+                  <TableCell> <strong>Actions</strong></TableCell>
+                  {/* <TableCell> <strong>Accounting Email</strong> </TableCell>
                   <TableCell> <strong>Staff Count</strong></TableCell>
                   <TableCell> <strong>Websites</strong></TableCell>
                   <TableCell> <strong>Service Location</strong></TableCell>
-                  <TableCell> <strong>Billing Address</strong></TableCell>
+                  <TableCell> <strong>Billing Address</strong></TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -163,20 +288,23 @@ const VendorDetails = () => {
                         <TableCell>{row.contact_number}</TableCell>
                         <TableCell>{row.country}</TableCell>
                         <TableCell>{text.split(',')[0]}</TableCell>
-                        <TableCell>{row.personal_email}</TableCell>
-                        <TableCell>{row.staff}</TableCell>
-                        <TableCell>{row.website}</TableCell>
                         <TableCell>
+                          <Button variant="outlined" onClick={() => openDetailsModal(row, text.split(',')[0])}>View</Button>
+                        </TableCell>
+                        {/* <TableCell>{row.personal_email}</TableCell>
+                        <TableCell>{row.staff}</TableCell>
+                        <TableCell>{row.website}</TableCell> */}
+                        {/* <TableCell>
                           <Button
                             variant="outlined"
                             onClick={() => showServiceLocation(row.id)}
                           >
-                            View
-                          </Button>
-                        </TableCell>
-                        <TableCell>
+                            Viewk
+                          </Button> */}
+                        {/* </TableCell> */}
+                        {/* <TableCell>
                           <Button variant="outlined">View</Button>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}
