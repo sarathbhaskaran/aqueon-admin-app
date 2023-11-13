@@ -4,7 +4,7 @@ import { useDispatch, connect } from "react-redux";
 import MailIcon from '@mui/icons-material/Mail';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 const SideNavbar = ({ navBarSelection, stateNav }) => {
   const dispatch = useDispatch()
@@ -18,16 +18,16 @@ const SideNavbar = ({ navBarSelection, stateNav }) => {
             <SubMenu
               style={{ backgroundColor: navBarSelection === 'vendors' ? '#4ab9cf' : '', color: navBarSelection === 'vendors' ? 'white' : '' }}
               onClick={() => dispatch({ type: 'SET_VENDORS' })}
-              label="Vendors"
+              label="Supplier"
               icon={<HomeRepairServiceIcon color="action" />}
             ></SubMenu> 
 
-          {/* <SubMenu
+          <SubMenu
             style={{ backgroundColor: navBarSelection === 'shipManager' ? '#4ab9cf' : '', color: navBarSelection === 'shipManager' ? 'white' : '' }}
             onClick={() => dispatch({ type: 'SET_SHIP_MANAGERS' })}
             label="Ship Managers"
-            icon={<PersonIcon color="action" />}
-          ></SubMenu> */}
+            icon={<ManageAccountsIcon color="action" />}
+          ></SubMenu>
 
           {/* {isServiceSupplier() &&
             <SubMenu
@@ -52,12 +52,12 @@ const SideNavbar = ({ navBarSelection, stateNav }) => {
               // suffix={serviceRequestsData.length ? <Badge color="danger">{serviceRequestsData.length}</Badge> : null}
             ></SubMenu>
 
-            <SubMenu
+            {/* <SubMenu
               style={{ backgroundColor: navBarSelection === 'approve-vendor-requests' ? '#4ab9cf' : '', color: navBarSelection === 'approve-vendor-requests' ? 'white' : '' }}
               onClick={() => dispatch({ type: 'APPROVE_VENDOR_REQUESTS' })}
               label={"Approve Requests"}
               icon={<AssignmentTurnedInIcon color="action" />}
-            ></SubMenu>
+            ></SubMenu> */}
 
           <SubMenu
             style={{ backgroundColor: navBarSelection === 'logout' ? '#4ab9cf' : '', color: navBarSelection === 'logout' ? 'white' : '' }}

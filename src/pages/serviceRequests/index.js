@@ -172,7 +172,7 @@ const ServiceRequests = () => {
             </Col>
             <Col sm="6" >
               <Button onClick={() => navigateToRequestVendors() } color="success" variant="outlined">
-                View Details
+                View Details/Add Cost
               </Button>
             </Col>
           </Row>
@@ -209,7 +209,8 @@ const ServiceRequests = () => {
                 }</TableCell>
               </TableRow>
               )
-            }) : 
+            })
+            : 
             <div style={{ color: 'red'}}>No service supplier found.</div>
           }
               </Table>
