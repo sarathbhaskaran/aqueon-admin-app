@@ -1,23 +1,18 @@
 import React from "react";
 import { Sidebar, Menu, SubMenu } from "react-pro-sidebar";
 import { useDispatch, connect } from "react-redux";
-import { Badge } from "reactstrap";
-import { isServiceSupplier, isShipManger } from "../utility";
-// import Badge from '@mui/material/Badge';
 import MailIcon from '@mui/icons-material/Mail';
-import PersonIcon from '@mui/icons-material/Person';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
-import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import KeyIcon from '@mui/icons-material/Key';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
-const SideNavbar = ({ navBarSelection, serviceRequestsData }) => {
+const SideNavbar = ({ navBarSelection, stateNav }) => {
   const dispatch = useDispatch()
 
   return (
     <div className="side-bar">
       <Sidebar>
+      {console.log("stateNav", stateNav)}
         <Menu>
             {console.log("navBarSelection",navBarSelection)}
             <SubMenu
@@ -79,6 +74,7 @@ const SideNavbar = ({ navBarSelection, serviceRequestsData }) => {
 
 const mapStateToProps = state => ({
   navBarSelection: state.sideBar.navBarSelection,
+  stateNav: state.sideBar,
   // serviceRequestsData: state.auth.serviceRequests
 });
 

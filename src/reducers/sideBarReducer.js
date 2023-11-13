@@ -1,7 +1,8 @@
-import { SET_VENDORS, SET_SHIP_MANAGERS, SET_LOGOUT, SERVICE_REQUESTS, APPROVE_VENDOR_REQUESTS } from '../actionTypes';
+import { SET_VENDORS, SET_SHIP_MANAGERS, SET_LOGOUT, SERVICE_REQUESTS, APPROVE_VENDOR_REQUESTS, SET_SERVICE_REQUEST_ID } from '../actionTypes';
 
 const initialState = {
   navBarSelection: 'vendors',
+  serviceRequestId: '',
 };
 
 const sideBarReducer = (state = initialState, action) => {
@@ -31,6 +32,11 @@ const sideBarReducer = (state = initialState, action) => {
         ...state,
         navBarSelection: 'logout',
       };
+    case SET_SERVICE_REQUEST_ID: 
+      return {
+        ...state,
+        serviceRequestId: action.payload,
+      }
     default:
       return state;
   }
