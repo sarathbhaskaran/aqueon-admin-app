@@ -14,10 +14,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useState, useEffect } from "react";
 import {
-  ListGroupItem, ListGroup, Spinner, Badge, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col
+  ListGroupItem, ListGroup, Spinner, Badge, Modal,Alert, ModalHeader, ModalBody, ModalFooter, Row, Col, Label
 } from "reactstrap";
 import { config } from "../../config";
-import { Button } from "@mui/material";
+import { Button, Input, IconButton } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { unstable_batchedUpdates } from "react-dom";
 
 const ServiceRequests = () => {
 
@@ -31,7 +33,19 @@ const ServiceRequests = () => {
   const [requestVendors, setRequestesVendors] = useState([]);
   const [openServiceLocation, setOpenServiceLocation] = React.useState(false);
   const [serviceLocations, setServiceLocations] = React.useState([]);
+  const [isInviteVendorModal, setIsInviteVendorModal] = useState(false);
+  const [vendorEmailsArr, setVendorEmailArr] = useState([])
+  const [newVendorEmail, setNewVendorEmail] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [succesMessage, setSuccesMessage] = useState(null);
 
+  const showErrorAlert = (message) => {
+    setErrorMessage(message);
+  };
+
+  const showSuccessAlert = (message) => {
+    setSuccesMessage(message)
+  }
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
   };
@@ -64,7 +78,9 @@ const ServiceRequests = () => {
       })
 
   };
-
+  const openInviteVendorModal = () => {
+    setIsInviteVendorModal(true)
+  }
   useEffect(() => {
     axios.get(`${config.api_base_url}/admin/service-requests`)
       .then((res) => {
@@ -77,7 +93,9 @@ const ServiceRequests = () => {
       })
   }, []);
 
-
+  const handleCloseInviteVendorModal = () => {
+    setIsInviteVendorModal(false)
+  }
   const renderModal = () => {
     const selectRequest = vendorList.find(each => each.id == selectedRequestId);
     return (
@@ -164,46 +182,46 @@ const ServiceRequests = () => {
             <h5>Requested Vendors</h5>
           </Row>
           {
-            
+
             <div>
               <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Company Name</strong></TableCell>
-                  <TableCell><strong>Company Email</strong></TableCell>
-                  <TableCell> <strong>Status</strong></TableCell>
-                </TableRow>
-              </TableHead>
-            {requestVendors.length > 0 ? requestVendors.map(each => {
-              return(
-                <TableRow onClick={() => toggle(each.id)} hover role="checkbox" tabIndex={-1} key={each.id}>
-                <TableCell>
-                  {each.company_name}
-                </TableCell>
-                <TableCell>{each.company_email}</TableCell>
-                <TableCell>{
-                  each.status === 'pending' ?
-                    <Badge color="warning">
-                      Pending
-                    </Badge> :
-                    each.status === 'accepted' ?
-                      <Badge color="success">
-                        Accepted
-                      </Badge> :
-                      <Badge color="primary">
-                        Closed
-                      </Badge>
-                }</TableCell>
-              </TableRow>
-              )
-            }) : 
-            <div style={{ color: 'red'}}>No service supplier found.</div>
-          }
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Company Name</strong></TableCell>
+                    <TableCell><strong>Company Email</strong></TableCell>
+                    <TableCell> <strong>Status</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                {requestVendors.length > 0 ? requestVendors.map(each => {
+                  return (
+                    <TableRow onClick={() => toggle(each.id)} hover role="checkbox" tabIndex={-1} key={each.id}>
+                      <TableCell>
+                        {each.company_name}
+                      </TableCell>
+                      <TableCell>{each.company_email}</TableCell>
+                      <TableCell>{
+                        each.status === 'pending' ?
+                          <Badge color="warning">
+                            Pending
+                          </Badge> :
+                          each.status === 'accepted' ?
+                            <Badge color="success">
+                              Accepted
+                            </Badge> :
+                            <Badge color="primary">
+                              Closed
+                            </Badge>
+                      }</TableCell>
+                    </TableRow>
+                  )
+                }) :
+                  <div style={{ color: 'red' }}>No service supplier found.</div>
+                }
               </Table>
-          </div>
-          
+            </div>
+
           }
-         
+
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={() => setShowFullDetails(!showFullDetails)}>
@@ -232,9 +250,137 @@ const ServiceRequests = () => {
     )
   }
 
+  const addVendorEmail = () => {
+    unstable_batchedUpdates(() => {
+      setVendorEmailArr((prevEmails) => [
+        ...prevEmails,
+        newVendorEmail
+      ]);
+      setNewVendorEmail('')
+    })
+
+  };
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setNewVendorEmail(value);
+  };
+
+  const  removeNewVendorId = (indexToRemove) => {
+    setVendorEmailArr((prevEmails) => {
+      const newArr = [...prevEmails];    
+      newArr.splice(indexToRemove, 1);
+      return newArr;
+    });
+    
+  }
+
+  const inviteNewVendors = async() => {
+    await axios.post('/inviteNewVendors', vendorEmailsArr)
+    .then(res => {
+
+      unstable_batchedUpdates(() => {
+        setVendorEmailArr([])
+        setNewVendorEmail('')
+        setIsInviteVendorModal(false)
+      })
+
+      showSuccessAlert('Invites send succesfully')
+      setTimeout(() => {
+        setSuccesMessage(null)
+      }, 2000);
+      console.log("ress", res)
+    })
+    .catch(err => {
+
+      console.log("err", err)
+
+      unstable_batchedUpdates(() => {
+        setVendorEmailArr([])
+        setNewVendorEmail('')
+        setIsInviteVendorModal(false)
+      })
+
+      showErrorAlert('Invites send failed')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 2000);
+
+    })
+   
+  }
+
+  const hideAlert = () => {
+    setErrorMessage(null);
+  };
+
   return (
     <div className="tab-pane-container-wrapper">
       <div className="tab-pane-container">
+      <Alert color="danger" isOpen={errorMessage !== null} toggle={hideAlert}>
+            {errorMessage}
+          </Alert>
+          <Alert color="success" isOpen={succesMessage !== null} toggle={hideAlert}>
+            {succesMessage}
+          </Alert>
+        <Dialog
+          open={isInviteVendorModal}
+          onClose={handleCloseInviteVendorModal}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          fullWidth={true}
+          maxWidth={'sm'}
+        >
+          <DialogTitle>
+            Invite New Vendor To Registor
+          </DialogTitle>
+          <DialogContent>
+            <Row style={{ display: 'flex', flexDirection: 'column' }}>
+              <Label>
+                Enter vendor's email id to ivite
+              </Label>
+            </Row>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Input
+                style={{ flex: 4 }}
+                type="email"
+                // id="new-vendor-email"
+                name="email"
+                placeholder="Type Vendor Email"
+                onChange={handleChange}
+                value={newVendorEmail}
+              >
+              </Input>
+              <Button variant="contained" color="primary" style={{ marginLeft: '10px' }} onClick={addVendorEmail}>
+                +
+              </Button>
+            </div>
+            <div>
+              {
+                vendorEmailsArr.length > 0 && vendorEmailsArr.map((email, index) => {
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgb(228, 228, 228)', margin: '4px 0' }}>
+                      <p key={index}>{email}</p>
+                      <IconButton aria-label="delete">
+                        <DeleteIcon onClick={() => removeNewVendorId(index)}/>
+                      </IconButton>
+                    </div >
+                  )
+                })
+              }
+            </div>
+            <div style={{display:'flex', justifyContent: 'flex-end', marginTop:'20px'}}>
+
+            <Button color="success" variant="contained" onClick={inviteNewVendors}>
+              Invite
+            </Button>
+
+            </div>
+
+
+          </DialogContent>
+
+        </Dialog>
         <Dialog
           open={openServiceLocation}
           onClose={handleCloseServiceLocation}
@@ -275,6 +421,11 @@ const ServiceRequests = () => {
         </Dialog>
         {showFullDetails && renderModal()}
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="contained" onClick={openInviteVendorModal}>
+              + Invite New Vendor
+            </Button>
+          </div>
           <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -299,7 +450,7 @@ const ServiceRequests = () => {
                           {row.company_name}
                         </TableCell>
                         <TableCell>{row.company_email}</TableCell>
-                        <TableCell >{row.serviceName ? row.serviceName : <div style={{ display: 'flex'}}>{row.newServiceName }<div style={{ color: 'orange'}} >(new)</div> </div> }</TableCell>
+                        <TableCell >{row.serviceName ? row.serviceName : <div style={{ display: 'flex' }}>{row.newServiceName}<div style={{ color: 'orange' }} >(new)</div> </div>}</TableCell>
                         <TableCell>{row.country}</TableCell>
                         <TableCell>{text}</TableCell>
                         <TableCell>{
