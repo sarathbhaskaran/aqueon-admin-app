@@ -5,7 +5,7 @@ import Radio from '@mui/material/Radio';
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, FormGroup, Label, Alert, Row, Col } from "reactstrap";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { config } from "../../config";
 import { useDispatch, connect } from "react-redux";
 
@@ -18,6 +18,14 @@ const AdminLogIn = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    const authObj = JSON.parse(localStorage.getItem('authInfo'))
+    const checkIsAuth =  authObj?.data?.token ? true : false;
+    if (checkIsAuth) {
+      navigate("/admin/dashboard");
+    }
+  }, []);
 
   const showAlert = (message) => {
     setErrorMessage(message);

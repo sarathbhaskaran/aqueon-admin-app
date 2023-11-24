@@ -325,12 +325,12 @@ const VendorDetailsModal = ({vendorId}) => {
                             {
                                 (addedServiceLocation.length > 0) ? addedServiceLocation.map((location, index) => {
                                     return (
-                                        <div style={{ display: 'flex' }}>
+                                        <div>
                                             <span>{`${location.country}/${location.port}`}</span>
 
                                             {
                                                 (index < addedServiceLocation.length - 1) &&
-                                                <span>,</span>
+                                                <span>, </span>
                                             }
                                         </div>
                                     )

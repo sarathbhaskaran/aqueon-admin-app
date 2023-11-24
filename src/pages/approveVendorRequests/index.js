@@ -33,8 +33,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
   const [checkSwitch, setCheckSwitch] = useState(false)
   const [openAddCostModal, setOpenAddCostModal] = useState(false)
   const [showAddedPrice, setShowAddedPrice] = useState(false)
-  
-
+  const [showReviewModal, setShowReviewModal] = useState(false)
 
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
@@ -61,6 +60,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
       .then(res => {
         // console.log("res", res.data)
         setOpenAddCostModal(false)
+        getAcceptedVendorsData()
         // setAddedCost(0)
         // getAcceptedVendorsData()
 
@@ -81,11 +81,10 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
     await axios.post('/add-extra-cost', { addedCost, serviceRequestId })
       .then(res => {
         console.log("res", res.data)
-        // setAddedCost(0)
         setAddCostPopup(false)
+        getAcceptedVendorsData()
       })
       .catch(err => {
-        // setAddedCost(0)
         alert('Error while approve')
         console.log("err", err)
       })
@@ -165,8 +164,9 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
   //       console.log("Error updating password")
   //     })
   // }
+  
   const renderAddCostModal = () => {
-    const currencyLogo = vendorDetails.currencyType === 'USD' ? "$" : "₹"
+    const currencyLogo = vendorDetails.currency === 'USD' ? "$" : "₹"
     let totalServiceCost = 0;
     vendorDetails.serviceCost.forEach(each => {
       totalServiceCost = parseFloat(totalServiceCost) + parseFloat(each.cost);
@@ -240,7 +240,11 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
           </Button>
           <Button
             color='success'
-            onClick={() => applyAddedCost()}
+            // onClick={() => applyAddedCost()}
+            onClick={() => {
+              showServiceLocation(vendorDetails)
+              setShowReviewModal(true)
+            }}
             autoFocus
           >
             {/* {
@@ -249,7 +253,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
               </Spinner>
             } */}
             <span>
-              {' '}Add Cost
+              {' '}Review Cost
             </span>
 
           </Button>
@@ -259,9 +263,13 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
   }
 
   const renderOfferModal = () => {
-    const currencyLogo = vendorDetails.currencyType === 'USD' ? "$" : "₹"
+    console.log("vendorDetails", vendorDetails)
+    const currencyLogo = vendorDetails.currency === 'USD' ? "$" : "₹"
     let totalServiceCost = 0;
     let costKeyName = !showAddedPrice ? 'serviceCost' : 'addedCost'
+    if (checkSwitch) {
+      costKeyName = 'serviceCost'
+    }
     vendorDetails[`${costKeyName}`].forEach(each => {
       totalServiceCost = parseFloat(totalServiceCost) + parseFloat(each.cost);
     })
@@ -280,10 +288,11 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
             <Row style={{ width: '80%' }}>
               {vendorDetails[`${costKeyName}`].map((each, index) => {
                 let serviceCostData =  vendorDetails.serviceCost.find(eachCost => eachCost.id === each.id)
+                let cost = (checkSwitch && showAddedPrice && index === 0) ? (parseFloat(each.cost) + vendorDetails.addedCost) : each.cost
                 return (
                   <div key={each.id} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h6 style={{ color: 'black', fontSize: '14px' }}>{index + 1}. {each.serviceName}</h6>
-                    <strong style={{ color: 'green', fontSize: '13px' }}> <strong style={{ color: 'black', fontSize: '13px' }}>{each.cost ? currencyLogo + each.cost : currencyLogo + '0'} </strong>{ showAddedPrice ? `(+ ${each.cost - serviceCostData.cost})` : null}</strong>
+                    <strong style={{ color: 'green', fontSize: '13px' }}> <strong style={{ color: 'black', fontSize: '13px' }}>{cost ? currencyLogo + cost : currencyLogo + '0'} </strong>{ showAddedPrice ? `(+ ${cost - serviceCostData.cost})` : null}</strong>
                   </div>
                 )
               })}
@@ -306,6 +315,14 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
             <strong style={{ fontSize: "24px", color: "green" }} >{currencyLogo + totalCost}</strong>
           </div>
           <Row style={{ marginTop: '2rem' }}>
+            <Col sm='12'>
+              <h6 style={{ color: 'black', fontSize: '15px' }}>Payment Terms</h6>
+              <div style={{ borderRadius: '5px', minHeight: '70px', marginBottom: '6px' }}>
+                <p style={{ fontSize: '13px' }}>{'After invoice in 15 days' }</p>
+              </div>
+            </Col>
+          </Row>
+          <Row style={{ marginTop: '1rem' }}>
             <Col sm='12'>
               <h6 style={{ color: 'black', fontSize: '15px' }}>Terms And Condition*</h6>
               <div style={{ borderRadius: '5px', minHeight: '70px', marginBottom: '6px' }}>
@@ -344,6 +361,93 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
     )
   }
 
+
+  const renderReviewModal = () => {
+    const currencyLogo = vendorDetails.currency === 'USD' ? "$" : "₹"
+    let totalServiceCost = 0;
+    let costKeyName = 'serviceCost'
+    vendorDetails[`${costKeyName}`].forEach(each => {
+      totalServiceCost = parseFloat(totalServiceCost) + parseFloat(each.cost) + parseFloat(each.addedCost);
+    })
+    const totalCost = parseFloat(totalServiceCost) + parseFloat(vendorDetails.mobilizationCost) + parseFloat(vendorDetails.extraCharges);
+    return (
+      <Modal isOpen={showReviewModal}>
+        <ModalHeader>
+           Review Added Cost
+        </ModalHeader>
+        <ModalBody>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h6 style={{ color: 'black' }}>Service Cost (total): </h6>
+            <strong>{totalServiceCost ? currencyLogo + totalServiceCost : currencyLogo + '0'}</strong>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginLeft: '20px', width: '100%' }}>
+            <Row style={{ width: '80%' }}>
+              {vendorDetails[`${costKeyName}`].map((each, index) => {
+                // let serviceCostData =  vendorDetails.serviceCost.find(eachCost => eachCost.id === each.id)
+                let cost = parseFloat(each.cost) + parseFloat(each.addedCost)
+                return (
+                  <div key={each.id} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h6 style={{ color: 'black', fontSize: '14px' }}>{index + 1}. {each.serviceName}</h6>
+                    <strong style={{ color: 'black', fontSize: '13px' }}>{cost ? currencyLogo + cost : currencyLogo + '0'}</strong>
+                  </div>
+                )
+              })}
+            </Row>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: '0.5rem' }}>
+            <h6 style={{ color: 'black' }}>Mobilization/Demobilization Cost: </h6>
+            <strong>{vendorDetails.mobilizationCost ? currencyLogo + vendorDetails.mobilizationCost : currencyLogo + '0'}</strong>
+          </div>
+          <div style={{}}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: '0.5em' }}>
+              <h6 style={{ color: 'black', marginBottom: '1px' }}>Extra Charges: </h6>
+              <strong>{vendorDetails.extraCharges ? currencyLogo + vendorDetails.extraCharges : currencyLogo + '0'}</strong>
+            </div>
+            <p style={{ margin: '2px' }}>({vendorDetails.extraChargeRemark})</p>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: '1rem' }}>
+            <h6 style={{ color: 'black' }}>Total Cost: </h6>
+            <strong style={{ fontSize: "24px", color: "green" }} >{currencyLogo + totalCost}</strong>
+          </div>
+          <Row style={{ marginTop: '2rem' }}>
+            <Col sm='12'>
+              <h6 style={{ color: 'black', fontSize: '15px' }}>Terms And Condition*</h6>
+              <div style={{ borderRadius: '5px', minHeight: '70px', marginBottom: '6px' }}>
+                <p style={{ fontSize: '13px' }}>{vendorDetails.termsAndCondition ? vendorDetails.termsAndCondition : '---'}</p>
+              </div>
+            </Col>
+          </Row>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            outline
+            onClick={() => {
+              setOpenServiceLocation(false)
+              setShowReviewModal(false)
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            color='success'
+            onClick={() => {
+              applyAddedCost()
+              setOpenServiceLocation(false)
+              setShowReviewModal(false)
+            }}
+            autoFocus
+            variant="contained"
+          >
+            <span>
+              {' '}Submit Added Cost
+            </span>
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
   // const currencyLogo = vendorDetails.currency === 'USD' ? "$" : "₹"
   return (
     <div className="tab-pane-container-wrapper">
@@ -351,7 +455,8 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
 
         {openServiceLocation && renderOfferModal()}
         {openAddCostModal && renderAddCostModal()}
-
+        {showReviewModal && renderReviewModal()}
+        
         <Dialog
           fullWidth={true}
           maxWidth={'sm'}
@@ -369,7 +474,8 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
                 <Col sm='6'>
                   <h6 style={{ color: 'black' }}>Cost to Add (₹)</h6>
                   <Input
-                    value={addedCost}
+                    // value={addedCost}
+                    placeholder="add amount.."
                     onChange={handleAddedCost}
                   >
                   </Input>
@@ -391,23 +497,24 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
         </Dialog>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h6 style={{ flex: '1' }}>
+          <h6>
             Request Id: {serviceRequestId}
           </h6>
           {/* <h6>
             Added Cost: <strong style={{ fontSize: '25px' }} >₹{addedCost}</strong>
           </h6> */}
-          <FormGroup style={{ flex: '1' }} switch>
+          <FormGroup switch>
             <Input
               type="switch"
               style={{ height: '20px', width: "45px", marginRight: '10px' }}
               checked={checkSwitch}
+              // disabled={checkSwitch}
               onClick={() => {
                 setAddCostPopup(true)
                 setCheckSwitch(true)
               }}
             />
-            <Label check>Turn on switch to automate add cost</Label>
+            <Label check>{checkSwitch ?"Automatic mode enabled" : 'Turn on switch to automate add cost'}</Label>
           </FormGroup>
           {/* <Button variant="contained" onClick={() => setAddCostPopup(true)} >
             Choose add method
@@ -456,7 +563,7 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
                           <Button
                             variant="outlined"
                             style={{ marginLeft: '5px' }}
-                            disabled={row.adminApprovedStatus === 'approved'}
+                            // disabled={row.adminApprovedStatus === 'approved'}
                             onClick={() => {
                               setOpenAddCostModal(true)
                               setVendorDetails(row)
@@ -467,7 +574,8 @@ const ApproveVendorRequests = ({ serviceRequestId }) => {
                           <Button
                             variant="outlined"
                             style={{ marginLeft: '5px'}}
-                            disabled={row.adminApprovedStatus !== 'approved'}
+                            disabled={row.status === 'pending' && row.adminApprovedStatus !== 'approved'}
+                            // disabled={row.adminApprovedStatus !== 'approved'}
                             onClick={() => {
                               setShowAddedPrice(true)
                               showServiceLocation(row)

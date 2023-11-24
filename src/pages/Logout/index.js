@@ -16,7 +16,7 @@ const LogoutPage = () => {
 
     const logoutUser = async () => {
         localStorage.removeItem('authInfo');
-        await navigate('/app/login')
+        await navigate('/admin/login')
         window.location.reload();
     }
 

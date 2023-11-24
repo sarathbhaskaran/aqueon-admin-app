@@ -16,7 +16,7 @@ const PrivateRoute = ({ path, element }) => {
   return isAuthenticated() ? (
     element
   ) : (
-    <Navigate to="/app/login" state={{ from: path }} />
+    <Navigate to="/admin/login" state={{ from: path }} />
   );
 };
 
@@ -25,7 +25,7 @@ export default function Routes() {
     <BaseRoutes>
       {/* <Route path="/app" element={<Dashboard />} /> */}
       {/* <Route path="/admin" element={<Signup />} /> */}
-      <Route path="/admin/login" element={<AdminLogin />} />      
+      <Route path="/admin/login" element={<AdminLogin />} /> 
       <Route path="/admin/dashboard" element={<PrivateRoute element={<Dashboard />}/>} />
       <Route path="/app/vendor-approval-pending" element={<PrivateRoute element={<VendorApprovalPending/> }/>} />
       <Route path="/app/approval-pending" element={ <ApprovalPending />} />

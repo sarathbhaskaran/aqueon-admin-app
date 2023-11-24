@@ -27,7 +27,7 @@ const ApprovalPending = () => {
         <p>
           Thank you for choosing <strong>Aqueon</strong>! We look forward to serving you.
         </p>
-        <Link to="/app/login">
+        <Link to="/admin/login">
           <Button color="primary">Go to Login</Button>
         </Link>
       </div>

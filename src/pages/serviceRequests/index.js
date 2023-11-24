@@ -36,8 +36,10 @@ const ServiceRequests = () => {
   const [openServiceLocation, setOpenServiceLocation] = React.useState(false);
   const [serviceLocations, setServiceLocations] = React.useState([]);
   const [isInviteVendorModal, setIsInviteVendorModal] = useState(false);
+  const [isRequestVendorModal, setIsRequestVendorModal] = useState(false);
   const [vendorEmailsArr, setVendorEmailArr] = useState([])
   const [newVendorEmail, setNewVendorEmail] = useState('')
+  const [requestVendorEmail, setRequestVendorEmail] = useState('')
   const [errorMessage, setErrorMessage] = useState(null);
   const [succesMessage, setSuccesMessage] = useState(null);
 
@@ -184,11 +186,21 @@ const ServiceRequests = () => {
               </Col>
             </Row>
           </div>
+          <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: '1rem' }}>
+              <Button variant="contained" onClick={openInviteVendorModal}>
+                + Invite New Vendor
+              </Button>
+              <Button style={{ marginLeft: '5px' }} variant="contained" onClick={() => setIsRequestVendorModal(true) }>
+                + Request Vendor
+              </Button>
+          </div>
+          </div>
           <Row style={{ marginTop: "2rem", display: 'flex', justifyContent: 'space-between' }}>
             <Col sm="6">
               <h5>Requested Vendors</h5>
             </Col>
-            <Col sm="6" >
+            <Col sm="4" >
               <Button onClick={() => navigateToRequestVendors() } color="success" variant="outlined">
                 View Details/Add Cost
               </Button>
@@ -221,6 +233,11 @@ const ServiceRequests = () => {
                       <Badge color="success">
                         Offer Submitted
                       </Badge> :
+                      each.status === 'offerAwareded' ?
+                      <Badge color="secondary">
+                        Offer Awareded
+                      </Badge>
+                      :
                       <Badge color="primary">
                         Offer Submitted
                       </Badge>
@@ -324,6 +341,42 @@ const ServiceRequests = () => {
    
   }
 
+  const requestNewVendors = async() => {
+    const selectRequest = vendorList.find(each => each.id == selectedRequestId);
+    await axios.post('/service-request-manual', 
+      { email: requestVendorEmail, 
+        serviceId: selectRequest.serviceId, 
+        country: selectRequest.country,
+        port: selectRequest.port,
+        shipDetails,
+        requestId: selectedRequestId
+      })
+    .then(res => {
+      unstable_batchedUpdates(() => {
+        setRequestVendorEmail('')
+        setIsRequestVendorModal(false)
+      })
+
+      showSuccessAlert('Request send succesfully')
+      setTimeout(() => {
+        setSuccesMessage(null)
+      }, 2000);
+    })
+    .catch(err => {
+      unstable_batchedUpdates(() => {
+        setRequestVendorEmail('')
+        setIsRequestVendorModal(false)
+      })
+
+      showErrorAlert('Request send failed')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 2000);
+
+    })
+   
+  }
+
   const hideAlert = () => {
     setErrorMessage(null);
   };
@@ -337,6 +390,44 @@ const ServiceRequests = () => {
           <Alert color="success" isOpen={succesMessage !== null} toggle={hideAlert}>
             {succesMessage}
           </Alert>
+
+          <Dialog
+          open={isRequestVendorModal}
+          onClose={() => { setIsRequestVendorModal(false) }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          fullWidth={true}
+          maxWidth={'sm'}
+        >
+          <DialogTitle>
+            Request Vendor For Service Enquiry
+          </DialogTitle>
+          <DialogContent>
+            <Row style={{ display: 'flex', flexDirection: 'column' }}>
+              <Label>
+                Enter vendor's email id to request this service enquiry
+              </Label>
+            </Row>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Input
+                style={{ flex: 4 }}
+                type="email"
+                name="email"
+                placeholder="Type Vendor Email"
+                onChange={(e) => setRequestVendorEmail(e.target.value)}
+                value={requestVendorEmail}
+              >
+              </Input>
+            </div>
+            <div style={{display:'flex', justifyContent: 'flex-end', marginTop:'20px'}}>
+            <Button color="success" variant="contained" onClick={requestNewVendors}>
+              Send Request
+            </Button>
+            </div>
+          </DialogContent>
+
+        </Dialog>
+
         <Dialog
           open={isInviteVendorModal}
           onClose={handleCloseInviteVendorModal}
@@ -435,11 +526,7 @@ const ServiceRequests = () => {
         </Dialog>
         {showFullDetails && renderModal()}
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="contained" onClick={openInviteVendorModal}>
-              + Invite New Vendor
-            </Button>
-          </div>
+        
           <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
