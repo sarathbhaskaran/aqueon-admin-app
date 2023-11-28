@@ -30,6 +30,9 @@ const VendorDetails = () => {
   const [serviceLocations, setServiceLocations] = useState([]);
   const [detailsModalData, setDetailsModalData] = useState([])
   const [isOpenDetailsModal, setIsOpenDetailsModal] = useState(false)
+  const [isOpenSuspendModal, setIsOpenSuspendModal] = useState(false)
+
+  
 
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
@@ -112,6 +115,32 @@ const VendorDetails = () => {
       setDetailsModalData(details)
     })
   }
+
+  const openSuspendModal = (data) => {
+console.log("data", data)
+unstable_batchedUpdates(() => {
+  setIsOpenSuspendModal(true)
+  setDetailsModalData(data)
+})
+  }
+
+  const handleCloseSuspendModal = () => {
+    unstable_batchedUpdates(() => {
+      setIsOpenSuspendModal(false)
+      setDetailsModalData([])
+    })
+  }
+
+  const suspendAccount = () => {
+    axios.put('/suspend-vendor')
+    .then(res => {
+      console.log("account susended")
+    })
+    .catch(err => {
+      console.log("error while suspending supplier account")
+    })
+  }
+
 
   return (
     <div className="tab-pane-container-wrapper">
@@ -256,6 +285,26 @@ onClose={handleClose}
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog
+        open={isOpenSuspendModal}
+        onClose={handleCloseSuspendModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        >
+
+<DialogTitle>
+          Suspend Account ?
+          </DialogTitle>
+          <DialogContent>
+          Are you sure, you want to suspend the Supplier account ?
+          </DialogContent>
+          <DialogActions>
+          <Button color="error" onClick={handleCloseSuspendModal}>Cancel</Button>
+            <Button onClick={() => suspendAccount()}>Yes</Button>
+          </DialogActions>
+
+        </Dialog>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           <TableContainer sx={{ maxHeight: 440 }}>
             <Table stickyHeader aria-label="sticky table">
@@ -290,6 +339,7 @@ onClose={handleClose}
                         <TableCell>{text.split(',')[0]}</TableCell>
                         <TableCell>
                           <Button variant="outlined" onClick={() => openDetailsModal(row, text.split(',')[0])}>View</Button>
+                          <Button variant="outlined" color='error' style={{marginLeft: '4px'}} onClick={() => openSuspendModal(row)}>Suspend</Button>
                         </TableCell>
                         {/* <TableCell>{row.personal_email}</TableCell>
                         <TableCell>{row.staff}</TableCell>
