@@ -193,7 +193,7 @@ const VendorDetailsModal = ({vendorId}) => {
             {/* <div className="tab-pane-container-wrapper"> */}
             <div className="summary-division-one">
                 <h4 style={{ marginBottom: '2rem' }}>1. Info</h4>
-                <h5>Basic Details</h5>
+                <h5 style={{marginBottom: '8px'}}>Basic Details</h5>
                 <Row>
                     <Row>
                         <Col>
@@ -267,7 +267,7 @@ const VendorDetailsModal = ({vendorId}) => {
                     </Row>
                 </Row>
 
-                <h5 style={{ marginTop: '10px' }}>Company details</h5>
+                <h5 style={{ marginTop: '10px', marginBottom: '8px' }}>Company details</h5>
                 <Row>
                     <Col sm='4'>
                         <h6 size="sm">Company Description</h6>
@@ -315,24 +315,24 @@ const VendorDetailsModal = ({vendorId}) => {
 
                     </Col>
 
-                </Row>
-                <Row>
+                {/* </Row> */}
+                {/* <Row> */}
                     <Col>
                         <h5>Service Location</h5>
 
-                        <div style={{ display: 'flex' }}>
+                        <div style={{ display: 'flex' , flexDirection: 'column'}}>
 
                             {
                                 (addedServiceLocation.length > 0) ? addedServiceLocation.map((location, index) => {
                                     return (
-                                        <div>
+                                        <p>
                                             <span>{`${location.country}/${location.port}`}</span>
 
                                             {
                                                 (index < addedServiceLocation.length - 1) &&
                                                 <span>, </span>
                                             }
-                                        </div>
+                                        </p>
                                     )
                                 })
                                     :
