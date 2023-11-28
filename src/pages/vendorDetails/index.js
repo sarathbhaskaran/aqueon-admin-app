@@ -31,8 +31,11 @@ const VendorDetails = () => {
   const [detailsModalData, setDetailsModalData] = useState([])
   const [isOpenDetailsModal, setIsOpenDetailsModal] = useState(false)
   const [isOpenSuspendModal, setIsOpenSuspendModal] = useState(false)
+  const [vendorId, setVendorId] = useState(0)
+  const [accountStatus, setAccountStatus] = useState('active')
+  const [companyEmail, setCompanyEmail] = useState('')
 
-  
+
 
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
@@ -52,16 +55,19 @@ const VendorDetails = () => {
     setPage(0);
   };
 
-  useEffect(() => {
+  const getVendorDetails = () => {
     axios.get(`${config.api_base_url}/admin/vendors`)
-      .then((res) => {
-        console.log("res", res.data);
-        setVendorList(res.data);
-      })
-      .catch(err => {
-        alert("Error");
-        console.log("Error")
-      })
+    .then((res) => {
+      console.log("res", res.data);
+      setVendorList(res.data);
+    })
+    .catch(err => {
+      alert("Error");
+      console.log("Error")
+    })
+  }
+  useEffect(() => {
+    getVendorDetails()
   }, []);
 
   const showServiceLocation = (id) => {
@@ -116,12 +122,14 @@ const VendorDetails = () => {
     })
   }
 
-  const openSuspendModal = (data) => {
-console.log("data", data)
-unstable_batchedUpdates(() => {
-  setIsOpenSuspendModal(true)
-  setDetailsModalData(data)
-})
+  const openSuspendModal = (vendorId, vendorAccountStatus, company_email) => {
+    console.log("vendorId", vendorId)
+    unstable_batchedUpdates(() => {
+      setIsOpenSuspendModal(true)
+      setVendorId(vendorId)
+      setAccountStatus(vendorAccountStatus)
+      setCompanyEmail(company_email)
+    })
   }
 
   const handleCloseSuspendModal = () => {
@@ -132,24 +140,32 @@ unstable_batchedUpdates(() => {
   }
 
   const suspendAccount = () => {
-    axios.put('/suspend-vendor')
-    .then(res => {
-      console.log("account susended")
-    })
-    .catch(err => {
-      console.log("error while suspending supplier account")
-    })
+    axios.put('/suspend-vendor/', { params: { id: vendorId, accountStatus, companyEmail } })
+      .then(res => {
+        unstable_batchedUpdates(() => {
+          setVendorId(0)
+          setIsOpenSuspendModal(false)
+          getVendorDetails()
+        })
+      })
+      .catch(err => {
+        console.log("error while updating active status of supplier account")
+        unstable_batchedUpdates(() => {
+          setVendorId(0)
+          setIsOpenSuspendModal(false)
+        })
+      })
   }
 
 
   return (
     <div className="tab-pane-container-wrapper">
       <div className="tab-pane-container">
-      <Dialog
+        <Dialog
           open={isOpenDetailsModal}
-        maxWidth={'lg'}
-        fullWidth={true}
-onClose={handleClose}
+          maxWidth={'lg'}
+          fullWidth={true}
+          onClose={handleClose}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
@@ -239,10 +255,10 @@ onClose={handleClose}
 
           </DialogContent> */}
           <DialogContent>
-            <VendorDetailsModal vendorId={detailsModalData.id}/>
+            <VendorDetailsModal vendorId={detailsModalData.id} />
           </DialogContent>
           <DialogActions>
-          <Button onClick={handleClose} autoFocus>
+            <Button onClick={handleClose} autoFocus>
               Okay
             </Button>          </DialogActions>
         </Dialog>
@@ -287,20 +303,26 @@ onClose={handleClose}
         </Dialog>
 
         <Dialog
-        open={isOpenSuspendModal}
-        onClose={handleCloseSuspendModal}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+          open={isOpenSuspendModal}
+          onClose={handleCloseSuspendModal}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
 
-<DialogTitle>
-          Suspend Account ?
+          <DialogTitle>
+            <p>
+              {accountStatus === 'active' ?
+            'Suspend Account'  : 'Activate Account'}
+              </p>
           </DialogTitle>
           <DialogContent>
-          Are you sure, you want to suspend the Supplier account ?
+          <p>
+              {accountStatus === 'active' ?
+            'Are you sure, you want to suspend the Supplier account ?'  : 'Are you sure, you want to activate the Supplier account ?'}
+              </p>          
           </DialogContent>
           <DialogActions>
-          <Button color="error" onClick={handleCloseSuspendModal}>Cancel</Button>
+            <Button color="error" onClick={handleCloseSuspendModal}>Cancel</Button>
             <Button onClick={() => suspendAccount()}>Yes</Button>
           </DialogActions>
 
@@ -329,7 +351,7 @@ onClose={handleClose}
                     const d = new Date(row.creation_time);
                     let text = d.toLocaleString();
                     return (
-                      <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableRow hover role="checkbox" tabIndex={-1} key={row.id} style={{background: row.active_status === 'suspended' ? 'rgb(245, 156, 156)' : '' }}>
                         <TableCell>
                           {row.company_name}
                         </TableCell>
@@ -339,7 +361,11 @@ onClose={handleClose}
                         <TableCell>{text.split(',')[0]}</TableCell>
                         <TableCell>
                           <Button variant="outlined" onClick={() => openDetailsModal(row, text.split(',')[0])}>View</Button>
-                          <Button variant="outlined" color='error' style={{marginLeft: '4px'}} onClick={() => openSuspendModal(row)}>Suspend</Button>
+                          <Button variant= {row.active_status === 'suspended'? 'contained': 'outlined'}
+                           color={row.active_status === 'suspended'? 'success': 'error'} 
+                           style={{ marginLeft: '4px' }} 
+                           onClick={() => openSuspendModal(row.id, row.active_status, row.company_email)} 
+                          >{row.active_status === 'suspended'? 'Activate' : 'Suspend' }</Button>
                         </TableCell>
                         {/* <TableCell>{row.personal_email}</TableCell>
                         <TableCell>{row.staff}</TableCell>
