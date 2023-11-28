@@ -15,7 +15,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useState, useEffect } from "react";
 import {
-  ListGroupItem, ListGroup, Spinner, Badge, Modal,Alert, ModalHeader, ModalBody, ModalFooter, Row, Col, Label
+  ListGroupItem, ListGroup, Spinner, Badge, Modal,Alert, ModalHeader, ModalBody, ModalFooter, Row, Col, Label, Input as InputStrap 
 } from "reactstrap";
 import { config } from "../../config";
 import { Button, Input, IconButton } from "@mui/material";
@@ -38,7 +38,10 @@ const ServiceRequests = () => {
   const [isInviteVendorModal, setIsInviteVendorModal] = useState(false);
   const [isRequestVendorModal, setIsRequestVendorModal] = useState(false);
   const [vendorEmailsArr, setVendorEmailArr] = useState([])
+  const [showPOModal, setShowPOModal] = useState(false);
   const [newVendorEmail, setNewVendorEmail] = useState('')
+  const [poAttachmentFile, setPoattachmentFile] = useState({ });
+  const [poMessage, setPoMessage] = useState({ error: false, message: '' });
   const [requestVendorEmail, setRequestVendorEmail] = useState('')
   const [errorMessage, setErrorMessage] = useState(null);
   const [succesMessage, setSuccesMessage] = useState(null);
@@ -104,6 +107,119 @@ const ServiceRequests = () => {
   const handleCloseInviteVendorModal = () => {
     setIsInviteVendorModal(false)
   }
+
+  const handlePOfielAttachment = (event) => {
+    const { name } = event.target;
+    setPoattachmentFile({
+      ...poAttachmentFile,
+      [name]: event.target.files[0],
+    });
+  };
+
+  const handlePoNumber = (event) => {
+    const { name } = event.target;
+    setPoattachmentFile({
+      ...poAttachmentFile,
+      [name]: event.target.value,
+    });
+  };
+
+  const submitPurchaseOrder = () => {
+      const formData = new FormData();
+      formData.append("file", poAttachmentFile.poFile);
+      formData.append("poNumber", poAttachmentFile.poNumber);
+      formData.append("requested_vendors_id", showPOModal);
+      // formData.append("requested_vendors_id", selectedVendorId);
+  
+      axios.post('/admin/submit-purchase-order', formData)
+        .then(res => {
+          setShowPOModal(false);
+          setPoattachmentFile({ })
+          setPoMessage({ ...poMessage, error: false, message: 'Your Purchase Order Submitted Succefully.' })
+          setTimeout(() => {
+            setPoMessage({ ...poMessage, error: false, message: "" })
+          }, 3000);
+        })
+  }
+
+  const rendePOmodal = () => {
+    return (
+      <Modal isOpen={true} size="lg">
+        <ModalHeader>
+          Submit Purchase Order
+        </ModalHeader>
+        <ModalBody>
+          <h5 style={{ fontSize: '16px' }}>Please submit purchase order to proceed with the offer</h5>
+          <div style={{ backgroundColor: '#F2F2F2', padding: '7px', borderRadius: '7px', marginTop: '1rem' }}>
+            <h6>Billing Address</h6>
+            <p>Aqueon Group</p>
+            <p>46, mg road, near metro</p>
+            <p>Kochi, Kerala, India</p>
+            <p>676508</p>
+            <h6>Contact Details</h6>
+            <p>Ms. Ruth Elizebath Roshan</p>
+            <p>Business Development Manager</p>
+            <p>Mob: - +91 8891668537</p>
+            <p>Email: - info@aqueongroup.com</p>
+            <Button size="sm">
+              Download billing address
+            </Button>
+          </div>
+          <Row style={{ marginTop: '1rem' }}>
+            <Col sm="5">
+              <Label>PO number</Label>
+              <InputStrap
+                type="text"
+                bsSize="sm"
+                // value={certificationDetails[`${each.id}Name`]}
+                // id={each.id}
+                // invalid={provideAllDetailsAlert === each.id}
+                name={`poNumber`}
+                onChange={handlePoNumber}
+              />
+            </Col>
+            <Col sm="5">
+              <Label>Attach PO file</Label>
+              <InputStrap
+                type="file"
+                bsSize="sm"
+                // id={each.id}
+                // key={theInputKey || ""}
+                // invalid={provideAllDetailsAlert === each.id}
+                name={'poFile'}
+                onChange={handlePOfielAttachment}
+              />
+            </Col>
+          </Row>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            outline
+            onClick={() => setShowPOModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            color='primary'
+            // onClick={() => accepetOffer(selectedVendor.id)}
+            onClick={() => {
+              // let selectedVendorId = selectedVendor.id;
+              // if (showPOModal === 'submit-po') {
+              //   let foundRequestVendors = requestVendors.find(each => each.status === 'offerAccepted')
+              //   console.log("foundRequestVendors", foundRequestVendors)
+              //   selectedVendorId = foundRequestVendors.id
+              // }
+              submitPurchaseOrder()
+            }}
+            autoFocus
+          >
+            Submit Purchase Order
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
   const renderModal = () => {
     const selectRequest = vendorList.find(each => each.id == selectedRequestId);
     return (
@@ -207,7 +323,6 @@ const ServiceRequests = () => {
             </Col>
           </Row>
           {
-
             <div>
               <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -215,6 +330,7 @@ const ServiceRequests = () => {
                   <TableCell><strong>Company Name</strong></TableCell>
                   <TableCell><strong>Company Email</strong></TableCell>
                   <TableCell> <strong>Status</strong></TableCell>
+                  <TableCell><strong>Action</strong></TableCell>
                 </TableRow>
               </TableHead>
             {requestVendors.length > 0 ? requestVendors.map(each => {
@@ -224,7 +340,8 @@ const ServiceRequests = () => {
                   {each.company_name}
                 </TableCell>
                 <TableCell>{each.company_email}</TableCell>
-                <TableCell>{
+                <TableCell>
+                  {
                   each.status === 'pending' ?
                     <Badge color="warning">
                       Pending
@@ -234,14 +351,28 @@ const ServiceRequests = () => {
                         Offer Submitted
                       </Badge> :
                       each.status === 'offerAwareded' ?
-                      <Badge color="secondary">
+                      <Badge color="primary">
                         Offer Awareded
                       </Badge>
                       :
-                      <Badge color="primary">
-                        Offer Submitted
+                      <Badge color="warning">
+                        Pending
                       </Badge>
-                }</TableCell>
+                }
+                { each.purchase_order ? 
+                  <Badge style={{ marginLeft: '1px'}} color="success">PO raised</Badge> : null
+                }
+                </TableCell>
+                <TableCell>
+               {each.status === 'offerAwareded' && 
+                  <Button 
+                    variant="contained" 
+                    color="success" 
+                    onClick={() => setShowPOModal(each.id)}
+                  >
+                    Rise PO
+                  </Button>}
+                </TableCell>
               </TableRow>
               )
             })
@@ -384,6 +515,10 @@ const ServiceRequests = () => {
   return (
     <div className="tab-pane-container-wrapper">
       <div className="tab-pane-container">
+      { poMessage.message && <Alert isOpen={poMessage.message ? true : false} fade={true} transition={"Fade"} color={poMessage.error ? 'danger' : 'success'} >
+          {poMessage.message}
+      </Alert>}
+      {showPOModal && rendePOmodal()}
       <Alert color="danger" isOpen={errorMessage !== null} toggle={hideAlert}>
             {errorMessage}
           </Alert>
