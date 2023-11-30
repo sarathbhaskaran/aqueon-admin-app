@@ -14,7 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useState, useEffect } from "react";
 import {
-  ListGroupItem, ListGroup, Row, Col
+  ListGroupItem, ListGroup, Row, Col, Spinner
 } from "reactstrap";
 import { config } from "../../config";
 import { Button } from "@mui/material";
@@ -34,6 +34,8 @@ const VendorDetails = () => {
   const [vendorId, setVendorId] = useState(0)
   const [accountStatus, setAccountStatus] = useState('active')
   const [companyEmail, setCompanyEmail] = useState('')
+  const [isLoading, setIsLoading] = React.useState(true);
+
 
 
 
@@ -59,10 +61,15 @@ const VendorDetails = () => {
     axios.get(`${config.api_base_url}/admin/vendors`)
     .then((res) => {
       console.log("res", res.data);
-      setVendorList(res.data);
+      unstable_batchedUpdates(() => {
+        setVendorList(res.data);
+        setIsLoading(false);
+      })
+
     })
     .catch(err => {
       alert("Error");
+      setIsLoading(false);
       console.log("Error")
     })
   }
@@ -78,6 +85,25 @@ const VendorDetails = () => {
         console.log("res", res);
       })
   }
+
+  if (isLoading) {
+    return (
+      <div className="tab-pane-container-wrapper" style={{}}>
+        <div className="tab-pane-container" style={{ height: "55vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Spinner
+            color="primary"
+            style={{
+              height: '3rem',
+              width: '3rem'
+            }}
+          >
+            Loading...
+          </Spinner>
+        </div>
+      </div>
+    )
+  }
+
   // const handleChangePassword = async () => {
   //   if (password.length < 8) {
   //     alert("Password must be more than 8 characters")

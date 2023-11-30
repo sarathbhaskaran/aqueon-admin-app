@@ -18,6 +18,8 @@ import {
 } from "reactstrap";
 import { config } from "../../config";
 import { Button } from "@mui/material";
+import { Spinner } from 'reactstrap'
+import { unstable_batchedUpdates } from "react-dom";
 
 const ShipMangerDetails = () => {
 
@@ -26,6 +28,7 @@ const ShipMangerDetails = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [openServiceLocation, setOpenServiceLocation] = React.useState(false);
   const [serviceLocations, setServiceLocations] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const handleClickOpenServiceLocation = () => {
     setOpenServiceLocation(true);
@@ -49,10 +52,15 @@ const ShipMangerDetails = () => {
     axios.get(`${config.api_base_url}/admin/shipmanager`)
       .then((res) => {
         console.log("res", res);
-        setVendorList(res.data.data);
+        unstable_batchedUpdates(() => {
+          setVendorList(res.data.data);
+          setIsLoading(false);
+        })
+
       })
       .catch(err => {
         alert("Error");
+        setIsLoading(false);
         console.log("Error")
       })
   }, []);
@@ -64,6 +72,24 @@ const ShipMangerDetails = () => {
         setServiceLocations(res.data.message)
         console.log("res", res);
       })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="tab-pane-container-wrapper" style={{}}>
+        <div className="tab-pane-container" style={{ height: "55vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Spinner
+            color="primary"
+            style={{
+              height: '3rem',
+              width: '3rem'
+            }}
+          >
+            Loading...
+          </Spinner>
+        </div>
+      </div>
+    )
   }
   // const handleChangePassword = async () => {
   //   if (password.length < 8) {
